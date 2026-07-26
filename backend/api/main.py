@@ -40,6 +40,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 # pyrefly: ignore [missing-import]
 try:
+    # pyrefly: ignore [missing-import]
     from predict import predict_sample, encoder
 except ImportError as _e:
     import logging

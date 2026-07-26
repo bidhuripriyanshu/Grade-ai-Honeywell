@@ -13,7 +13,10 @@ Or import and call find_similar_cases(...)
 import os
 import numpy as np
 import joblib
-def normalize_vec(v):
+def normalize_vec(v, **kwargs):
+    """L2-normalise rows of a 2-D array. Accepts (and ignores) extra keyword
+    arguments (e.g. ``norm='l2'``) so it can serve as a drop-in fallback for
+    ``sklearn.preprocessing.normalize``."""
     norm = np.linalg.norm(v, axis=1, keepdims=True)
     norm[norm == 0] = 1.0
     return v / norm
