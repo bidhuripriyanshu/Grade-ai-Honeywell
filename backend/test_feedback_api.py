@@ -13,9 +13,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "feedback"))
 
 # pyrefly: ignore [missing-import]
 from fastapi.testclient import TestClient
-from api.main import app
+from api.main import app as fastapi_app
 
-client = TestClient(app)
+client = TestClient(fastapi_app)
 
 def test_feedback_endpoints():
     print("=" * 60)

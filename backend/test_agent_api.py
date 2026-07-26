@@ -16,9 +16,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "models"))
 sys.path.append(os.path.join(os.path.dirname(__file__), "similarity"))
 
 from fastapi.testclient import TestClient
-from api.main import app
+from api.main import app as fastapi_app
 
-client = TestClient(app)
+client = TestClient(fastapi_app)
 
 def test_agent_workflow_endpoint():
     print("=" * 60)
