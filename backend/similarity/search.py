@@ -29,6 +29,12 @@ SCALER_PATH  = os.path.join(BASE_DIR, "scaler.pkl")
 ENC_PATH     = os.path.join(BASE_DIR, "encoders.pkl")
 DF_PATH      = os.path.join(BASE_DIR, "historical_df.pkl")
 
+nn = None
+scaler = None
+encoders = None
+hist_df = None
+HAS_SEARCH_ARTIFACTS = False
+
 try:
     nn        = joblib.load(INDEX_PATH)
     scaler    = joblib.load(SCALER_PATH)

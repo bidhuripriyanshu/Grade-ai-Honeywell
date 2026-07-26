@@ -13,17 +13,30 @@ Endpoints:
 import sys
 import os
 
-# Make similarity/ importable
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "similarity"))
-
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional
 # pyrefly: ignore [missing-import]
-from search import find_similar_cases, encoders
+from search import find_similar_cases, encoders, HAS_SEARCH_ARTIFACTS
 
 router = APIRouter(prefix="/history", tags=["Historical Similarity"])
+
+# Fallback recipe and grade lists for serverless mode
+_FALLBACK_RECIPES = ["Recipe A", "Recipe B", "Recipe C"]
+_FALLBACK_GRADES  = ["Standard", "Premium", "Export"]
+
+
+def _get_valid_recipes():
+    if HAS_SEARCH_ARTIFACTS and encoders is not None and "Recipe" in encoders:
+        return list(encoders["Recipe"].classes_)
+    return _FALLBACK_RECIPES
+
+
+def _get_valid_grades():
+    if HAS_SEARCH_ARTIFACTS and encoders is not None and "Grade" in encoders:
+        return list(encoders["Grade"].classes_)
+    return _FALLBACK_GRADES
 
 
 # ─────────────────────────────────────────────
@@ -56,15 +69,15 @@ def get_similar_cases(req: SimilarityRequest):
     - Operator action taken
     - Summary stats (success rate, warning notes)
     """
-    valid_recipes = list(encoders["Recipe"].classes_)
-    valid_grades  = list(encoders["Grade"].classes_)
+    valid_recipes = _get_valid_recipes()
+    valid_grades  = _get_valid_grades()
 
-    if req.recipe not in valid_recipes:
+    if req.recipe not in valid_recipes and HAS_SEARCH_ARTIFACTS:
         raise HTTPException(
             status_code=400,
             detail=f"Unknown recipe '{req.recipe}'. Valid: {valid_recipes}",
         )
-    if req.grade not in valid_grades:
+    if req.grade not in valid_grades and HAS_SEARCH_ARTIFACTS:
         raise HTTPException(
             status_code=400,
             detail=f"Unknown grade '{req.grade}'. Valid: {valid_grades}",
@@ -88,10 +101,10 @@ def get_similar_cases(req: SimilarityRequest):
 @router.get("/grades")
 def list_grades():
     """Return all valid paper grades in the historical dataset."""
-    return {"grades": list(encoders["Grade"].classes_)}
+    return {"grades": _get_valid_grades()}
 
 
 @router.get("/recipes")
 def list_recipes():
     """Return all valid recipes in the historical dataset."""
-    return {"recipes": list(encoders["Recipe"].classes_)}
+    return {"recipes": _get_valid_recipes()}
