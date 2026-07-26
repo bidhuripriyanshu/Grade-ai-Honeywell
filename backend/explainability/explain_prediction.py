@@ -10,27 +10,30 @@ Formats SHAP feature contribution breakdowns and generates plot artifacts
 
 import os
 import sys
-import matplotlib
-matplotlib.use("Agg")  # Non-interactive backend for server generation
-import matplotlib.pyplot as plt
 import numpy as np
+
+try:
+    import matplotlib
+    matplotlib.use("Agg")  # Non-interactive backend for server generation
+    import matplotlib.pyplot as plt
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
 
 from shap_analysis import calculate_shap_contributions
 
 PLOTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "shap_plots"))
-os.makedirs(PLOTS_DIR, exist_ok=True)
+if HAS_MATPLOTLIB:
+    try:
+        os.makedirs(PLOTS_DIR, exist_ok=True)
+    except Exception:
+        pass
+
 
 
 def generate_shap_plots(analysis_result: dict) -> dict:
-    """
-    Generate horizontal bar chart, waterfall plot, and summary plot PNG images
-    and save them into explainability/shap_plots/.
-
-    Returns
-    -------
-    dict
-        Paths to generated plot endpoints.
-    """
+    if not HAS_MATPLOTLIB:
+        return {"bar_plot": "", "waterfall_plot": "", "summary_plot": ""}
     feat_imp = analysis_result["feature_importance"]
     risk = analysis_result["risk"]
     base_risk = analysis_result["base_risk"]
