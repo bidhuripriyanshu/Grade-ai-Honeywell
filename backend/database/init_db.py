@@ -19,7 +19,17 @@ if ROOT_DIR not in sys.path:
 from database.connection import engine, SessionLocal, Base
 from database.models import FeedbackLogModel, TransitionLogModel
 
-DB_DIR  = os.path.abspath(os.path.dirname(__file__))
+IS_VERCEL = "VERCEL" in os.environ or "AWS_LAMBDA_FUNCTION_NAME" in os.environ
+
+if IS_VERCEL:
+    DB_DIR = "/tmp"
+else:
+    DB_DIR = os.path.abspath(os.path.dirname(__file__))
+    try:
+        os.makedirs(DB_DIR, exist_ok=True)
+    except Exception:
+        pass
+
 DB_FILE = os.path.join(DB_DIR, "feedback_log.json")
 _lock   = threading.Lock()
 
@@ -51,7 +61,10 @@ SEED_FEEDBACK_LOGS = [
 
 def init_database():
     """Initializes tables and seeds initial data into PostgreSQL / SQLite."""
-    os.makedirs(DB_DIR, exist_ok=True)
+    try:
+        os.makedirs(DB_DIR, exist_ok=True)
+    except Exception:
+        pass
     
     # 1. Create tables
     try:
@@ -83,9 +96,12 @@ def init_database():
         print(f"[Database Warning] Seeding failed: {e}")
 
     # 3. Mirror JSON backup file
-    if not os.path.isfile(DB_FILE):
-        with open(DB_FILE, "w", encoding="utf-8") as f:
-            json.dump(SEED_FEEDBACK_LOGS, f, indent=2)
+    try:
+        if not os.path.isfile(DB_FILE):
+            with open(DB_FILE, "w", encoding="utf-8") as f:
+                json.dump(SEED_FEEDBACK_LOGS, f, indent=2)
+    except Exception as e:
+        print(f"[Database Warning] JSON mirror backup skipped: {e}")
 
 if __name__ == "__main__":
     init_database()

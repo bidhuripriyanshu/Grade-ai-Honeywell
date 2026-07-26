@@ -49,9 +49,6 @@ try:
         pool_pre_ping=True,
         echo=False
     )
-    with engine.connect() as conn:
-        pass
-    logger.info(f"Database engine initialized using URL: {DATABASE_URL.split('@')[-1]}")
 except Exception as e:
     logger.warning(f"Primary DATABASE_URL failed ({e}). Falling back to local SQLite at {DEFAULT_SQLITE_PATH}.")
     DATABASE_URL = DEFAULT_SQLITE_URL
