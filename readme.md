@@ -208,8 +208,4 @@ The Next.js 16 Web Dashboard provides a high-density, real-time control UI built
 
 ```
 
----
 
-## License
-
-Internal Honeywell Industrial Copilot Platform project.
