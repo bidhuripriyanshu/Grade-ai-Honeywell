@@ -5,6 +5,5 @@ backend/dataset/
 frontend/.next/
 *.pyc
 __pycache__/
-*.pkl
 *.png
 *.jpg

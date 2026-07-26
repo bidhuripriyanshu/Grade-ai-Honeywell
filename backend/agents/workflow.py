@@ -12,10 +12,15 @@ import sys
 import os
 from typing import Dict, Any
 
+# pyrefly: ignore [missing-import]
 from state import AgentState
+# pyrefly: ignore [missing-import]
 from prediction_agent import prediction_agent_node
+# pyrefly: ignore [missing-import]
 from history_agent import history_agent_node
+# pyrefly: ignore [missing-import]
 from recommendation_agent import recommendation_agent_node
+# pyrefly: ignore [missing-import]
 from explanation_agent import explanation_agent_node
 
 # Attempt to import LangGraph StateGraph
@@ -68,8 +73,26 @@ def _fallback_pipeline_execution(sensor_data: Dict[str, Any]) -> AgentState:
 # Import Phase 9 AI explanation service
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "ai")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "ai")))
-# pyrefly: ignore [missing-import]
-from explanation_service import generate_copilot_explanation
+try:
+    # pyrefly: ignore [missing-import]
+    from explanation_service import generate_copilot_explanation
+except ImportError:
+    def generate_copilot_explanation(state: Dict[str, Any]) -> str:
+        """Offline fallback when ai/ module is not available (e.g. Vercel)."""
+        pred = state.get("prediction", {})
+        risk = float(pred.get("risk", 50.0))
+        recs = state.get("recommendations", {}).get("recommendations", [])
+        actions_str = ", ".join([r["action"].lower() for r in recs]) if recs else "maintaining current setpoints"
+        if risk >= 70.0:
+            return (
+                f"High off-spec risk ({risk:.1f}%) detected. Recommended corrective actions: "
+                f"{actions_str}. These adjustments will normalize process conditions and "
+                f"reduce grade transition defects."
+            )
+        return (
+            f"Current grade transition operating with low off-spec risk ({risk:.1f}%). "
+            f"Continue {actions_str} to preserve sheet uniformity."
+        )
 
 
 def run_workflow(sensor_data: Dict[str, Any]) -> Dict[str, Any]:

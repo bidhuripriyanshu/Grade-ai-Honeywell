@@ -59,8 +59,8 @@ def explain_prediction_endpoint(req: ExplainRequest):
     - SHAP Feature Importance (% risk contribution of each parameter)
     - Links to generated SHAP plots (bar, waterfall, summary)
     """
-    valid_recipes = list(encoder.classes_)
-    if req.recipe not in valid_recipes:
+    valid_recipes = list(encoder.classes_) if encoder is not None and hasattr(encoder, "classes_") else ["Recipe A", "Recipe B", "Recipe C"]
+    if req.recipe not in valid_recipes and encoder is not None:
         raise HTTPException(
             status_code=400,
             detail=f"Unknown recipe '{req.recipe}'. Valid recipes: {valid_recipes}",

@@ -57,8 +57,8 @@ def recommend_actions(req: RecommendationRequest):
     If `risk_pct` is not provided in the payload, the endpoint automatically runs the
     XGBoost model (`predict_sample`) to calculate the off-spec risk.
     """
-    valid_recipes = list(encoder.classes_)
-    if req.recipe not in valid_recipes:
+    valid_recipes = list(encoder.classes_) if encoder is not None and hasattr(encoder, "classes_") else ["Recipe A", "Recipe B", "Recipe C"]
+    if req.recipe not in valid_recipes and encoder is not None:
         raise HTTPException(
             status_code=400,
             detail=f"Unknown recipe '{req.recipe}'. Valid recipes: {valid_recipes}",

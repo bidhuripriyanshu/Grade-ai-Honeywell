@@ -26,7 +26,11 @@ from workflow import run_workflow, LANGGRAPH_AVAILABLE
 # pyrefly: ignore [missing-import]
 from predict import encoder
 # pyrefly: ignore [missing-import]
-from search import encoders
+from search import encoders, HAS_SEARCH_ARTIFACTS
+
+# Fallback lists for serverless mode (when .pkl files are unavailable)
+_FALLBACK_RECIPES = ["Recipe A", "Recipe B", "Recipe C"]
+_FALLBACK_GRADES  = ["Standard", "Premium", "Export"]
 
 router = APIRouter(prefix="/agent", tags=["AI Agent System (LangGraph)"])
 
@@ -62,8 +66,8 @@ def execute_agent_workflow(req: AgentWorkflowRequest):
     4. **ExplanationAgent** (SHAP Feature Contribution Analysis)
     """
     global latest_state
-    valid_recipes = list(encoder.classes_)
-    valid_grades  = list(encoders["Grade"].classes_)
+    valid_recipes = list(encoder.classes_) if encoder is not None and hasattr(encoder, "classes_") else _FALLBACK_RECIPES
+    valid_grades  = list(encoders["Grade"].classes_) if encoders is not None and "Grade" in encoders else _FALLBACK_GRADES
 
     if req.recipe not in valid_recipes:
         raise HTTPException(
