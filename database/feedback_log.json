@@ -1,5 +1,23 @@
 [
   {
+    "id": "FB-132",
+    "accepted": true,
+    "operator": "Operator J. Miller",
+    "prediction": "Off Spec",
+    "risk": 99.95,
+    "action": "Reduce Steam Pressure by 0.2 bar",
+    "timestamp": "2026-07-26T17:03:28Z"
+  },
+  {
+    "id": "FB-131",
+    "accepted": true,
+    "operator": "Operator J. Miller",
+    "prediction": "Off Spec",
+    "risk": 99.95,
+    "action": "Reduce Steam Pressure by 0.2 bar",
+    "timestamp": "2026-07-26T15:13:35Z"
+  },
+  {
     "id": "FB-130",
     "accepted": true,
     "operator": "Operator J. Miller",
