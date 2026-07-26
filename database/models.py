@@ -9,6 +9,7 @@ Located inside f:\\Grade-paper-ai\\database
 from datetime import datetime
 # pyrefly: ignore [missing-import]
 from sqlalchemy import Column, String, Float, Boolean, DateTime, Integer, Text
+# pyrefly: ignore [missing-import]
 from database.connection import Base
 
 class FeedbackLogModel(Base):

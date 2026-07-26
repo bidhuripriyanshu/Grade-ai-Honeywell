@@ -16,8 +16,10 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
+# pyrefly: ignore [missing-import]
 from database.connection import engine, SessionLocal, Base
-from database.models import FeedbackLogModel, TransitionLogModel
+# pyrefly: ignore [missing-import]
+from database.models import FeedbackLogModel, TransitionLogModel 
 
 IS_VERCEL = "VERCEL" in os.environ or "AWS_LAMBDA_FUNCTION_NAME" in os.environ
 
