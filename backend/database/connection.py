@@ -29,9 +29,14 @@ load_dotenv(os.path.join(ROOT_DIR, ".env"))
 logger = logging.getLogger("database")
 
 
-# Default SQLite database path inside database/ folder
-DEFAULT_SQLITE_PATH = os.path.join(DB_DIR, "paper_mill.db")
-DEFAULT_SQLITE_URL  = f"sqlite:///{DEFAULT_SQLITE_PATH}"
+IS_VERCEL = "VERCEL" in os.environ or "AWS_LAMBDA_FUNCTION_NAME" in os.environ
+
+if IS_VERCEL:
+    DEFAULT_SQLITE_PATH = "/tmp/paper_mill.db"
+else:
+    DEFAULT_SQLITE_PATH = os.path.join(DB_DIR, "paper_mill.db")
+
+DEFAULT_SQLITE_URL = f"sqlite:///{DEFAULT_SQLITE_PATH}"
 
 DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_SQLITE_URL)
 
