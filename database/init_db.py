@@ -1,31 +1,25 @@
 # -*- coding: utf-8 -*-
 """
-feedback_store.py
-=================
-Paper Factory AI — Phase 10 Feedback Store (DB + JSON Hybrid)
-
-Persists operator recommendation acceptance & rejection feedback in PostgreSQL / SQLite
-relational database using SQLAlchemy ORM, with automatic JSON mirroring & fallback,
-and calculates live AI Accuracy metrics.
+init_db.py
+==========
+Paper Factory AI — Database Initializer & Seeder Module
+Located inside f:\\Grade-paper-ai\\database
 """
 
 import os
 import sys
 import json
 import threading
-from datetime import datetime
-from typing import Dict, Any, List
 
 # Ensure project root is in sys.path
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-if root_dir not in sys.path:
-    sys.path.insert(0, root_dir)
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 
 from database.connection import engine, SessionLocal, Base
 from database.models import FeedbackLogModel, TransitionLogModel
-from database.init_db import init_database, SEED_FEEDBACK_LOGS
 
-DB_DIR  = os.path.abspath(os.path.join(root_dir, "database"))
+DB_DIR  = os.path.abspath(os.path.dirname(__file__))
 DB_FILE = os.path.join(DB_DIR, "feedback_log.json")
 _lock   = threading.Lock()
 
@@ -55,116 +49,43 @@ SEED_FEEDBACK_LOGS = [
     {"id": "FB-123", "accepted": True,  "operator": "Operator M. Davis", "prediction": "Normal",   "risk": 18.50, "action": "Maintain Current Setpoints", "timestamp": "2026-07-25T04:25:00Z"}
 ]
 
+def init_database():
+    """Initializes tables and seeds initial data into PostgreSQL / SQLite."""
+    os.makedirs(DB_DIR, exist_ok=True)
+    
+    # 1. Create tables
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("[Database] Schema tables initialized.")
+    except Exception as e:
+        print(f"[Database Warning] Table creation failed: {e}")
 
-def _ensure_db_initialized():
-    """Ensure database tables exist and seed data is populated via database.init_db."""
-    init_database()
-
-
-
-def get_feedback_statistics() -> Dict[str, Any]:
-    """
-    Read feedback logs from DB (with JSON fallback) and calculate live AI Accuracy score.
-    """
-    _ensure_db_initialized()
-
-    logs = []
-    # Try fetching from DB
+    # 2. Seed database
     try:
         db = SessionLocal()
-        db_records = db.query(FeedbackLogModel).order_by(FeedbackLogModel.timestamp.desc()).all()
-        logs = [r.to_dict() for r in db_records]
+        count = db.query(FeedbackLogModel).count()
+        if count == 0:
+            for seed in SEED_FEEDBACK_LOGS:
+                db_item = FeedbackLogModel(
+                    id=seed["id"],
+                    accepted=seed["accepted"],
+                    operator=seed["operator"],
+                    prediction=seed["prediction"],
+                    risk=seed["risk"],
+                    action=seed["action"],
+                    timestamp=seed["timestamp"]
+                )
+                db.add(db_item)
+            db.commit()
+            print(f"[Database] Seeded {len(SEED_FEEDBACK_LOGS)} baseline records.")
         db.close()
     except Exception as e:
-        print(f"[DB Fallback] Fetching logs from JSON fallback due to: {e}")
-        with _lock:
-            try:
-                with open(DB_FILE, "r", encoding="utf-8") as f:
-                    logs = json.load(f)
-            except Exception:
-                logs = SEED_FEEDBACK_LOGS
+        print(f"[Database Warning] Seeding failed: {e}")
 
-    if not logs:
-        logs = SEED_FEEDBACK_LOGS
-
-    total_count = len(logs)
-    accepted_count = sum(1 for item in logs if item.get("accepted", False))
-    rejected_count = total_count - accepted_count
-
-    accuracy = round((accepted_count / total_count * 100), 1) if total_count > 0 else 91.0
-
-    return {
-        "ai_accuracy": accuracy,
-        "total_feedback": total_count,
-        "accepted_count": accepted_count,
-        "rejected_count": rejected_count,
-        "history": logs
-    }
-
-
-def save_operator_feedback(feedback_data: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Save new operator feedback record into DB and JSON fallback.
-    """
-    _ensure_db_initialized()
-
-    timestamp_str = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-
-    # 1. Save to DB
-    try:
-        db = SessionLocal()
-        total_records = db.query(FeedbackLogModel).count()
-        new_id = f"FB-{total_records + 101}"
-
-        db_entry = FeedbackLogModel(
-            id=new_id,
-            accepted=bool(feedback_data.get("accepted", True)),
-            operator=str(feedback_data.get("operator", "Operator J. Miller")),
-            prediction=str(feedback_data.get("prediction", "Off Spec")),
-            risk=round(float(feedback_data.get("risk", 99.95)), 2),
-            action=str(feedback_data.get("action", "Reduce Steam Pressure by 0.2 bar")),
-            timestamp=timestamp_str
-        )
-        db.add(db_entry)
-        db.commit()
-        db.close()
-    except Exception as e:
-        print(f"[DB Save Warning] Saving to DB failed: {e}")
-
-    # 2. Mirror to JSON File
-    with _lock:
-        try:
-            with open(DB_FILE, "r", encoding="utf-8") as f:
-                logs = json.load(f)
-        except Exception:
-            logs = SEED_FEEDBACK_LOGS
-
-        new_json_id = f"FB-{len(logs) + 101}"
-        new_entry = {
-            "id": new_json_id,
-            "accepted": bool(feedback_data.get("accepted", True)),
-            "operator": str(feedback_data.get("operator", "Operator J. Miller")),
-            "prediction": str(feedback_data.get("prediction", "Off Spec")),
-            "risk": round(float(feedback_data.get("risk", 99.95)), 2),
-            "action": str(feedback_data.get("action", "Reduce Steam Pressure by 0.2 bar")),
-            "timestamp": timestamp_str
-        }
-
-        logs.insert(0, new_entry)
+    # 3. Mirror JSON backup file
+    if not os.path.isfile(DB_FILE):
         with open(DB_FILE, "w", encoding="utf-8") as f:
-            json.dump(logs, f, indent=2)
-
-    return get_feedback_statistics()
-
+            json.dump(SEED_FEEDBACK_LOGS, f, indent=2)
 
 if __name__ == "__main__":
-    stats = get_feedback_statistics()
-    print("=" * 50)
-    print("  Phase 10 Feedback Store — DB Integration Test")
-    print("=" * 50)
-    print(f"AI Accuracy     : {stats['ai_accuracy']}%")
-    print(f"Total Feedback  : {stats['total_feedback']}")
-    print(f"Accepted        : {stats['accepted_count']}")
-    print(f"Rejected        : {stats['rejected_count']}")
-    print(f"Records Count   : {len(stats['history'])}")
-    print("=" * 50)
+    init_database()

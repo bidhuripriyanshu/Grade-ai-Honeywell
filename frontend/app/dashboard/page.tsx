@@ -42,7 +42,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-5 pb-16 industrial-grid min-h-screen px-1">
+    <div className="max-w-[1400px] mx-auto space-y-5 pb-16 industrial-grid min-h-screen px-4 sm:px-6 py-6">
 
       {/* ── Hero Control Bar ── */}
       <div className="glass-red rounded-2xl p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-fade-in-down relative overflow-hidden">
