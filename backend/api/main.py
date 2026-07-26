@@ -99,9 +99,12 @@ def predict(data: SensorData):
     """
     Accept current sensor readings and return Off-Spec prediction + risk %.
     """
-    valid_recipes = list(encoder.classes_)
+    if encoder is not None and hasattr(encoder, "classes_"):
+        valid_recipes = [str(c) for c in encoder.classes_]
+    else:
+        valid_recipes = ["Recipe A", "Recipe B", "Recipe C"]
 
-    if data.recipe not in valid_recipes:
+    if data.recipe not in valid_recipes and encoder is not None:
         raise HTTPException(
             status_code=400,
             detail=f"Unknown recipe '{data.recipe}'. Valid options: {valid_recipes}",
@@ -129,6 +132,11 @@ def predict(data: SensorData):
 @app.get("/model-info", tags=["Info"])
 def model_info():
     """Return metadata about the trained model."""
+    if encoder is not None and hasattr(encoder, "classes_"):
+        valid_recipes = [str(c) for c in encoder.classes_]
+    else:
+        valid_recipes = ["Recipe A", "Recipe B", "Recipe C"]
+
     return {
         "features": [
             "Machine Speed",
@@ -140,6 +148,6 @@ def model_info():
             "Basis Weight",
         ],
         "target": "Off Spec",
-        "model_type": "XGBoost Classifier",
-        "valid_recipes": list(encoder.classes_),
+        "model_type": "XGBoost Classifier (Serverless Engine)",
+        "valid_recipes": valid_recipes,
     }
