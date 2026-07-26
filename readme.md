@@ -20,13 +20,13 @@ Small manual errors, delayed adjustments, or improper setpoint combinations caus
 
 ## 2. Key Features
 
-- 🎯 **Off-Spec Risk Prediction (`POST /predict`)**: Evaluates 7 core sensor parameters to output a real-time Off-Spec Risk % and classification.
-- 🔍 **Historical Similarity Search (`POST /history/similar`)**: Vector-based k-NN search across historical grade transitions to retrieve similar past runs, operator actions, and alarms.
-- ⚡ **7-Rule Domain Recommendation Engine (`POST /recommend`)**: Hardcoded paper mill operational rules generate immediate, actionable setpoint tweaks (e.g. *"Reduce Steam Pressure by 0.2 bar"*).
-- 📊 **SHAP Feature Explainability (`POST /explain`)**: Calculates exact feature contribution percentages and dynamically renders Matplotlib Waterfall, Bar, and Summary plots.
-- 🤖 **LangGraph Multi-Agent Pipeline (`POST /agent`)**: 4-node `StateGraph` DAG orchestrating Prediction $\rightarrow$ History $\rightarrow$ Recommendation $\rightarrow$ Explanation into a single response.
-- 🗣️ **LLM Copilot Summaries**: Generates operator-friendly narrative advice via Groq (`llama-3.3-70b-versatile`) or Gemini, with offline fallback narrative generation.
-- 🔄 **Closed-Loop Feedback System (`POST /feedback`)**: Captures operator accept/reject actions for recommendations, updating real-time AI accuracy stats (91%+ baseline).
+-  **Off-Spec Risk Prediction (`POST /predict`)**: Evaluates 7 core sensor parameters to output a real-time Off-Spec Risk % and classification.
+-  **Historical Similarity Search (`POST /history/similar`)**: Vector-based k-NN search across historical grade transitions to retrieve similar past runs, operator actions, and alarms.
+-  **7-Rule Domain Recommendation Engine (`POST /recommend`)**: Hardcoded paper mill operational rules generate immediate, actionable setpoint tweaks (e.g. *"Reduce Steam Pressure by 0.2 bar"*).
+-  **SHAP Feature Explainability (`POST /explain`)**: Calculates exact feature contribution percentages and dynamically renders Matplotlib Waterfall, Bar, and Summary plots.
+-  **LangGraph Multi-Agent Pipeline (`POST /agent`)**: 4-node `StateGraph` DAG orchestrating Prediction $\rightarrow$ History $\rightarrow$ Recommendation $\rightarrow$ Explanation into a single response.
+-  **LLM Copilot Summaries**: Generates operator-friendly narrative advice via Groq (`llama-3.3-70b-versatile`) or Gemini, with offline fallback narrative generation.
+-  **Closed-Loop Feedback System (`POST /feedback`)**: Captures operator accept/reject actions for recommendations, updating real-time AI accuracy stats (91%+ baseline).
 
 ---
 
@@ -149,9 +149,8 @@ npm run dev
 └──────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Complete PlantUML Architecture Diagram Code
+### System Architecture
 
-Below is the complete PlantUML architecture diagram code representing all subsystems, routers, agents, and data flow layers:
 
 <img width="1312" height="588" alt="image" src="https://github.com/user-attachments/assets/4628d799-39fb-4ca4-9a04-f69be5b8e972" />
 
@@ -178,7 +177,6 @@ The Next.js 16 Web Dashboard provides a high-density, real-time control UI built
 
 ---
 
-<<<<<<< HEAD
 ## 7. API Reference
 
 | Endpoint | Method | Input Payload | Output Description |
@@ -202,14 +200,13 @@ The Next.js 16 Web Dashboard provides a high-density, real-time control UI built
 
 ## 8. Future Scope
 
-- 🌐 **OPC-UA & Modbus IoT Integration**: Direct real-time streaming integration with industrial DCS (Distributed Control Systems) such as Honeywell Experion PKS.
-- ⚡ **Closed-Loop Autonomous Setpoint Control**: Moving from operator recommendation advisory mode to automated PLC setpoint adjustment under safety bounds.
-- 🧠 **Reinforcement Learning (RL) Optimization**: Fine-tuning transition paths using RL agents trained on historical paper machine physics simulators.
-- 🛡️ **Edge Deployment & Micro-Services**: Packaging inference models into lightweight ONNX runtimes for low-latency edge deployment on factory edge gateways.
-- 📈 **Multi-Mill Federated Learning**: Training risk models across multiple paper mill locations while protecting proprietary mill dataset privacy.
-=======
+-  **OPC-UA & Modbus IoT Integration**: Direct real-time streaming integration with industrial DCS (Distributed Control Systems) such as Honeywell Experion PKS.
+-  **Closed-Loop Autonomous Setpoint Control**: Moving from operator recommendation advisory mode to automated PLC setpoint adjustment under safety bounds.
+-  **Reinforcement Learning (RL) Optimization**: Fine-tuning transition paths using RL agents trained on historical paper machine physics simulators.
+-  **Edge Deployment & Micro-Services**: Packaging inference models into lightweight ONNX runtimes for low-latency edge deployment on factory edge gateways.
+-  **Multi-Mill Federated Learning**: Training risk models across multiple paper mill locations while protecting proprietary mill dataset privacy.
+
 ```
->>>>>>> df3cffc7b95426424b7a2cad1a3ffc1ea5609e90
 
 ---
 
