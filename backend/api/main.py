@@ -14,21 +14,37 @@ Endpoints:
 import sys
 import os
 
-# Make models/, similarity/, recommendation/, explainability/, agents/, and feedback/ importable
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "models"))
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "similarity"))
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "recommendation"))
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "explainability"))
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "agents"))
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "feedback"))
+# Determine the backend directory regardless of how the module is invoked
+_BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+_PROJECT_ROOT = os.path.abspath(os.path.join(_BACKEND_DIR, ".."))
+
+# Add backend root and all sub-module directories to sys.path
+for _dir in [
+    _BACKEND_DIR,
+    _PROJECT_ROOT,
+    os.path.join(_BACKEND_DIR, "models"),
+    os.path.join(_BACKEND_DIR, "similarity"),
+    os.path.join(_BACKEND_DIR, "recommendation"),
+    os.path.join(_BACKEND_DIR, "explainability"),
+    os.path.join(_BACKEND_DIR, "agents"),
+    os.path.join(_BACKEND_DIR, "feedback"),
+    os.path.join(_BACKEND_DIR, "database"),
+]:
+    if _dir not in sys.path:
+        sys.path.insert(0, _dir)
 
 # pyrefly: ignore [missing-import]
-from fastapi import FastAPI, HTTPException 
+from fastapi import FastAPI, HTTPException
 # pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 # pyrefly: ignore [missing-import]
-from predict import predict_sample, encoder 
+try:
+    from predict import predict_sample, encoder
+except ImportError as _e:
+    import logging
+    logging.warning(f"[main.py] predict import failed: {_e}")
+    from models.predict import predict_sample, encoder  # type: ignore
 from api.history import router as history_router
 from api.recommend import router as recommend_router
 from api.explain import router as explain_router
