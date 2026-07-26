@@ -319,6 +319,7 @@ The Next.js 16 Web Dashboard provides a high-density, real-time control UI built
 
 ---
 
+<<<<<<< HEAD
 ## 7. API Reference
 
 | Endpoint | Method | Input Payload | Output Description |
@@ -347,6 +348,9 @@ The Next.js 16 Web Dashboard provides a high-density, real-time control UI built
 - 🧠 **Reinforcement Learning (RL) Optimization**: Fine-tuning transition paths using RL agents trained on historical paper machine physics simulators.
 - 🛡️ **Edge Deployment & Micro-Services**: Packaging inference models into lightweight ONNX runtimes for low-latency edge deployment on factory edge gateways.
 - 📈 **Multi-Mill Federated Learning**: Training risk models across multiple paper mill locations while protecting proprietary mill dataset privacy.
+=======
+```
+>>>>>>> df3cffc7b95426424b7a2cad1a3ffc1ea5609e90
 
 ---
 
